@@ -30,3 +30,25 @@ jobs:
           python-version: "3.12"
 
       - run: ./scripts/test.sh
+
+  docker:
+    name: Build and smoke-test the image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - run: docker build -t notes:ci .
+
+      - name: Smoke test /healthz
+        run: |
+          docker run -d --name notes -p 8080:8080 notes:ci
+          for i in $(seq 1 20); do
+            if curl -fsS localhost:8080/healthz; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs notes
+          exit 1
