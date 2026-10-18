@@ -39,4 +39,4 @@ class ServerTest(unittest.TestCase):
     def test_notes(self):
         resp = self.get("/notes")
         data = json.loads(resp.read().decode())
-        self.assertEqual(data["count"], 3)
+        self.assertEqual(data["count"], 4)
