@@ -5,6 +5,8 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 NOTES = ["buy milk", "learn docker", "write ci"]
+GREETING = os.environ.get("GREETING", "Hello from notes service")
+API_KEY = os.environ.get("API_KEY", "")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -18,7 +20,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/":
-            self._send(200, "Hello from notes service\n")
+            self._send(200, f"{GREETING}\n")
         elif self.path == "/healthz":
             self._send(200, "ok\n")
         elif self.path == "/notes":
@@ -37,6 +39,8 @@ def main():
     server = make_server(port)
     signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
     print(f"listening on 0.0.0.0:{port}", flush=True)
+    # Never print the key itself, only whether it is set.
+    print(f"api key configured: {'yes' if API_KEY else 'no'}", flush=True)
     try:
         server.serve_forever()
     finally:
